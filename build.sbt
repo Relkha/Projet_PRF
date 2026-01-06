@@ -10,5 +10,10 @@ lazy val root = (project in file("."))
       "org.apache.spark" %% "spark-mllib" % "3.5.1" % "provided",
       "org.apache.spark" %% "spark-graphx" % "3.5.1" % "provided",
       "org.apache.spark" %% "spark-streaming" % "3.5.1" % "provided"
+    ),
+    javaOptions ++= Seq(
+      "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
+      "--add-opens=java.base/java.nio=ALL-UNNAMED",
+      "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
     )
   )

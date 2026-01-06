@@ -6,8 +6,18 @@ object App {
     println(
       """Urban Pollution Spark project
         |Try:
-        |  sbt "runMain urbanpollution.BatchJob data output"
-        |  sbt "runMain urbanpollution.StreamingJob data/stream output/stream"
+        |  spark-submit \
+          |  --class urbanpollution.StreamingJob \
+          |  --master "local[*]" \
+          |  target/scala-2.12/urban-pollution-spark_2.12-0.1.0.jar \
+          |  data/stream output/stream
+
+          spark-submit \
+            --class urbanpollution.BatchJob \
+            --master "local[*]" \
+            target/scala-2.12/urban-pollution-spark_2.12-0.1.0.jar \
+            data output
+            
         |  sbt "runMain urbanpollution.DataGenerator data 30 21"
         |""".stripMargin
     )

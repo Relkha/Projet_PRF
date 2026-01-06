@@ -26,7 +26,7 @@ object Analytics {
   def addTimeFeatures(df: DataFrame): DataFrame = {
     df
       .withColumn("hour", hour(col("ts")))
-      .withColumn("day_of_week", date_format(col("ts"), "u").cast("int")) // 1..7
+      .withColumn("day_of_week", (weekday(col("ts")) + lit(1)).cast("int")) // 1..7
       .withColumn("month", month(col("ts")))
       .withColumn("is_peak_hour",
         when(col("hour").between(7,9) || col("hour").between(17,19), 1).otherwise(0)
@@ -84,9 +84,8 @@ object Analytics {
       .withColumn("pm25_n", pmn)
       .withColumn("noise_n", noisen)
       .withColumn("humidity_n", humn)
-      // pondérations simples (tu peux les discuter dans le rapport)
       .withColumn("pollution_index",
-        0.45*col("pm25_n") + 0.35*col("co2_n") + 0.15*col("noise_n") + 0.05*col("humidity_n")
+        col("pm25_n")*0.45 + col("co2_n")*0.35 + col("noise_n")*0.15 + col("humidity_n")*0.05
       )
   }
 

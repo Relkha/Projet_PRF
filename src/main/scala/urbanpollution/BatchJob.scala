@@ -19,6 +19,7 @@ object BatchJob {
 
     val spark = SparkSession.builder()
       .appName("UrbanPollution-Batch")
+      .master("local[*]")
       .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")

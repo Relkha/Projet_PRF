@@ -1,6 +1,6 @@
 # Projet Spark — Analyse & Prévision de la Pollution Urbaine (Scala)
 
-Ce repo implémente un pipeline complet (batch + streaming optionnel) conforme au sujet :
+Ce repo implémente un pipeline complet (batch + streaming ) conforme au sujet :
 - Ingestion/Nettoyage (CSV/JSON) avec Spark SQL/DataFrames
 - Transformations fonctionnelles (map/filter/flatMap, groupBy/aggregate)
 - Analyses (stats, pics, indicateur global, anomalies)
@@ -12,12 +12,10 @@ Ce repo implémente un pipeline complet (batch + streaming optionnel) conforme a
 - Java 11+ (ou 8 selon ton Spark)
 - sbt
 
-> Les dépendances Spark sont en `provided` : tu exécutes avec `spark-submit` (recommandé) ou via ton IDE en ajoutant SPARK_HOME.
 
 ## Structure
 - `src/main/scala/urbanpollution/` : code Scala
 - `data/` : petit dataset d’exemple + dossier `stream/` pour le streaming
-- `reports/` : `report.tex` (rapport) + `slides.tex` (beamer)
 
 ## (A) Générer un dataset (optionnel)
 Le projet contient déjà un petit dataset dans `data/`.
@@ -30,8 +28,17 @@ sbt "runMain urbanpollution.DataGenerator data 30 21"
 Arguments : (outputDir, nbStations, nbJours).
 
 ## (B) Lancer le batch job
+### Build le project pour générer le jar 
 ```bash
-sbt "runMain urbanpollution.BatchJob data output"
+sbt clean package
+```
+### Run 
+```bash
+spark-submit \
+  --class urbanpollution.BatchJob \
+  --master "local[*]" \
+  target/scala-2.12/urban-pollution-spark_2.12-0.1.0.jar \
+  data output
 ```
 
 Sorties :
@@ -41,10 +48,19 @@ Sorties :
 - `output/predictions/`
 - `output/graph_metrics/`
 
-## (C) Lancer le streaming (optionnel)
+## (C) Lancer le streaming
 Terminal 1 :
+### Build le project pour générer le jar 
 ```bash
-sbt "runMain urbanpollution.StreamingJob data/stream output/stream"
+sbt clean package
+```
+### Run 
+```bash
+spark-submit \
+  --class urbanpollution.StreamingJob \
+  --master "local[*]" \
+  target/scala-2.12/urban-pollution-spark_2.12-0.1.0.jar \
+  data/stream output/stream
 ```
 
 Terminal 2 : copie des petits fichiers CSV vers `data/stream/` (simulation capteurs)

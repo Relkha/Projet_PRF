@@ -15,7 +15,6 @@ object GraphJob {
   def graphMetrics(spark: SparkSession, stations: DataFrame, edges: DataFrame): DataFrame = {
     import spark.implicits._
 
-    // VertexId stable via zipWithIndex
     val vertices: RDD[(VertexId, String)] =
       stations.select("station_id").as[String].rdd.zipWithIndex.map { case (sid, idx) =>
         (idx, sid)
@@ -71,7 +70,6 @@ object GraphJob {
       if (m.contains(src) && m.contains(dst)) Some(Edge(m(src), m(dst), 1)) else None
     }
 
-    // init PI (si station absente -> 0)
     val piMap = pollutionAtT.select("station_id","pollution_index").as[(String, Double)].collect().toMap
     val bcPI = spark.sparkContext.broadcast(piMap)
 
@@ -80,7 +78,7 @@ object GraphJob {
 
     var g = Graph(initial, graphEdges)
 
-    // Pregel diffusion
+
     val initialMsg = 0.0
     val g2 = Pregel(g, initialMsg, k)(
       vprog = (id, pi, msg) => alpha*pi + (1.0-alpha)*msg,

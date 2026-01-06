@@ -10,10 +10,6 @@ import java.io.{File, PrintWriter}
  * - stations.csv
  * - edges.csv
  * - measurements.csv
- *
- * Usage:
- *   sbt "runMain urbanpollution.DataGenerator data 30 21"
- *     outputDir nbStations nbDays
  */
 object DataGenerator {
 
@@ -105,7 +101,7 @@ object DataGenerator {
           val co2 = 420.0 + 0.12*traffic + rnd.nextGaussian()*15.0
           val pm25 = 10.0 + 0.018*traffic + 0.05*Math.max(0, hum-50) + rnd.nextGaussian()*4.0 + (if (event > 0) 5 else 0)
 
-          // injecte quelques anomalies
+          // injections de quelques anomalies
           val isAnom = rnd.nextDouble() < 0.003
           val pm25Final = if (isAnom) pm25 + 80 + rnd.nextInt(50) else pm25
 
