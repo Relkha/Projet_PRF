@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=2.3cm}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Projet Spark : Analyse et Prévision de la Pollution Urbaine}
+\author{Nom Prénom}
+\date{Année 2025--2026}
+
+\begin{document}
+\maketitle
+
+\section{Contexte et objectifs}
+L'objectif est de concevoir une application capable de mesurer, analyser et prédire la pollution dans un réseau urbain, en utilisant Apache Spark et la programmation fonctionnelle (RDD/DataFrames/SQL), avec un volet GraphX et un volet MLlib. % sujet
+\par Les mesures considérées : CO\textsubscript{2}, PM2.5, bruit, humidité et des variables temporelles/contexte (stations, lignes, trafic, événements, jours fériés). % sujet
+
+\section{Données}
+Deux choix sont possibles : données publiques ou dataset simulé. Dans ce projet, nous générons un dataset simulé cohérent :
+\begin{itemize}
+  \item \texttt{stations.csv} : identifiant, coordonnées, zone, type de transport
+  \item \texttt{edges.csv} : connexions entre stations (distance, ligne)
+  \item \texttt{measurements.csv} : mesures horaires par station (CO2, PM2.5, bruit, etc.)
+\end{itemize}
+
+\section{Ingestion et préparation}
+Lecture CSV avec schéma explicite, suppression des doublons (\texttt{ts, station\_id}) et gestion des valeurs manquantes.
+Les variables temporelles \texttt{hour}, \texttt{day\_of\_week}, \texttt{month} et \texttt{is\_peak\_hour} sont extraites.
+
+\section{Exploration et analyses}
+\subsection{Statistiques station/ligne}
+Calculs : moyenne, min, max, percentile 95\% par station ; et statistiques par ligne.
+
+\subsection{Pics horaires}
+Agrégation par station et heure pour identifier les périodes critiques.
+
+\subsection{Indicateur global de pollution}
+On définit un indicateur global (normalisé par station) :
+\[
+PI = 0.45\,\tilde{PM2.5} + 0.35\,\tilde{CO2} + 0.15\,\tilde{Bruit} + 0.05\,\tilde{Humidité}
+\]
+où $\tilde{x}$ est une normalisation min-max par station.
+
+\subsection{Anomalies}
+Détection automatique via Z-score (par station) sur PM2.5 et sur l'indice global :
+\[
+z = \frac{x - \mu}{\sigma}
+\]
+Une anomalie est signalée si $|z| > 3$.
+
+\section{Modélisation graphe (GraphX)}
+Les stations sont des sommets, les connexions des arêtes. Nous calculons :
+\begin{itemize}
+  \item centralité simple (degré),
+  \item PageRank,
+  \item propagation simplifiée de la pollution par diffusion itérative.
+\end{itemize}
+
+\section{Prédiction (MLlib)}
+On construit un dataset supervisé : prédire $PM2.5(t+1)$ à partir de variables temporelles, contextuelles et de lags (\texttt{pm25\_lag1, pi\_lag1}). Deux modèles sont évalués :
+\begin{itemize}
+  \item Random Forest Regressor,
+  \item Gradient-Boosted Trees Regressor.
+\end{itemize}
+Métriques : RMSE, MAE, $R^2$.
+
+\section{Conclusion et limites}
+Le pipeline couvre ingestion, transformations fonctionnelles, analyses, graphe et prédiction. Extensions possibles : streaming complet, données météo réelles, modèle de propagation plus réaliste (vent/flux), validation temporelle stricte.
+
+\end{document}

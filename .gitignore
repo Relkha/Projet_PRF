@@ -1,0 +1,7 @@
+target/
+.bsp/
+.metals/
+.idea/
+output/
+data/stream/*.csv
+*.log
